@@ -1,4 +1,4 @@
-# BOOST1 database
+# SQLalchemy database
 
 playbook for sqlalchemy
 

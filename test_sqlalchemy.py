@@ -1,9 +1,9 @@
 import os
 
-from sqlalchemy import Column, ForeignKey, Integer, String, create_engine
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, DateTime, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
-import datetime
+from datetime import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,15 +13,29 @@ engine = create_engine(DB_URI, echo=True)
 
 Base = declarative_base()
 
+class Todo(Base):
+    __tablename__ = 'todos'
+    id = Column('todo_id', Integer, primary_key=True)
+    title = Column(String(60))
+    text = Column(String)
+    done = Column(Boolean)
+    pub_date = Column(DateTime)
+
+    def __init__(self, title, text):
+        self.title = title
+        self.text = text
+        self.done = False
+        self.pub_date = datetime.utcnow()
+
 class Current_address(Base):
     __tablename__ = 'current_addresses'
     id = Column(Integer, primary_key=True)
 
     # associated to one user
-    user_id=Column(Integer, ForeignKey('users.id'), unique=True)
+    user_id=Column(Integer, ForeignKey('users.id', onupdate='CASCADE', ondelete='CASCADE'), unique=True)
     user=relationship('User', back_populates='current_address')
     # associated to one dataset
-    address_id=Column(Integer, ForeignKey('addresses.id'), nullable=True)
+    address_id=Column(Integer, ForeignKey('addresses.id', onupdate='CASCADE', ondelete='SET NULL'), nullable=True)
     address=relationship('Address', back_populates='current_address')
 
 class User(Base):
@@ -42,11 +56,11 @@ class Address(Base):
     __tablename__ = 'addresses'
     id = Column(Integer, primary_key=True)
     email_address = Column(String, nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
 
     user = relationship("User", back_populates="addrs")
     current_address = relationship("Current_address", uselist=False, back_populates="address")
-    foos=relationship('Foo', back_populates='address', cascade='all, delete-orphan')
+    foos=relationship('Foo', back_populates='address')#, cascade='all, delete, delete-orphan')
 
     def __repr__(self):
         return "<Address(email_address='%s')>" % self.email_address
@@ -55,7 +69,7 @@ class Foo(Base):
     __tablename__ = 'foos'
     id = Column(Integer, primary_key=True)
     bar = Column(String, nullable=False)
-    address_id = Column(Integer, ForeignKey('addresses.id'), nullable=False)
+    address_id = Column(Integer, ForeignKey('addresses.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
     address = relationship("Address", back_populates="foos")
 
     def __repr__(self):
@@ -228,8 +242,17 @@ for email, fullname in session.query(Address.email_address, User.fullname).join(
     all():
     print(f"email: {email}, \t\t fullname: {fullname}")
 
-qu = session.query(Address, Foo).join(Foo, Foo.address_id==Address.id).all()
 
+
+qu = session.query(User, Address, Foo).join(Address, User.id==Address.user_id).join(Foo, Foo.address_id==Address.id).all()
+vit = session.query(User, Address).join(Address, Address.user_id==User.id).filter(User.name=='Rene').all()
+
+session.query(Address).filter(Address.id==Foo.address_id, Foo.id>0).all()
+session.query(Address).filter(Address.id==Foo.address_id, Foo.id>0).delete(synchronize_session=False)
+a = session.query(Address).filter(Address.user_id==User.id, 
+                                User.name=='Rene', 
+                                Address.id==Foo.address_id,
+                                Foo.bar=='foo1bars').all()#delete(synchronize_session='fetch')
 #############################################
 if __name__ == '__main__':
     main()

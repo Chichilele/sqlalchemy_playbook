@@ -117,8 +117,8 @@ def update_done():
     #                                 Address.id==Foo.address_id,
     #                                 Foo.bar=='foo1bars').delete(synchronize_session='fetch')
 
-    Foo.query.filter(Foo.bar=='foo2bars').delete(synchronize_session='fetch')
-    db.session.commit()
+    # Foo.query.filter(Foo.bar=='foo2bars').delete(synchronize_session='fetch')
+    # db.session.commit()
     return redirect(url_for('show_all'))
 
 

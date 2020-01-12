@@ -244,15 +244,15 @@ for email, fullname in session.query(Address.email_address, User.fullname).join(
 
 
 
-qu = session.query(User, Address, Foo).join(Address, User.id==Address.user_id).join(Foo, Foo.address_id==Address.id).all()
-vit = session.query(User, Address).join(Address, Address.user_id==User.id).filter(User.name=='Rene').all()
+# qu = session.query(User, Address, Foo).join(Address, User.id==Address.user_id).join(Foo, Foo.address_id==Address.id).all()
+# vit = session.query(User, Address).join(Address, Address.user_id==User.id).filter(User.name=='Rene').all()
 
-session.query(Address).filter(Address.id==Foo.address_id, Foo.id>0).all()
-session.query(Address).filter(Address.id==Foo.address_id, Foo.id>0).delete(synchronize_session=False)
-a = session.query(Address).filter(Address.user_id==User.id, 
-                                User.name=='Rene', 
-                                Address.id==Foo.address_id,
-                                Foo.bar=='foo1bars').all()#delete(synchronize_session='fetch')
+# session.query(Address).filter(Address.id==Foo.address_id, Foo.id>0).all()
+# session.query(Address).filter(Address.id==Foo.address_id, Foo.id>0).delete(synchronize_session=False)
+# a = session.query(Address).filter(Address.user_id==User.id, 
+#                                 User.name=='Rene', 
+#                                 Address.id==Foo.address_id,
+#                                 Foo.bar=='foo1bars').all()#delete(synchronize_session='fetch')
 #############################################
 if __name__ == '__main__':
     main()

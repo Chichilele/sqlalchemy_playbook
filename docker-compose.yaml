@@ -15,5 +15,21 @@ services:
       - .env
     volumes:
       - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
+  
+  flask:
+    image: ailabsuk/boost_backend
+    environment: 
+      - FLASK_APP=/flask/src/hello.py
+      - FLASK_DEBUG=1
+      - LC_ALL=C.UTF-8
+      - LANG=C.UTF-8
+    ports:
+      - 5000:5000
+    volumes:
+      - .:/flask/src
+    entrypoint: 
+      - /flask/src/entrypoint.sh
+    depends_on: 
+      - postgres
 
  
